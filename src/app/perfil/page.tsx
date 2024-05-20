@@ -8,7 +8,7 @@ export default function Perfil(){
     const [name, setName] = useState('')
     const [email, setEmail] = useState('')
     const [imagePath, setImagePath] = useState('')
-    const [isAuthenticated, setIsAuthenticated] = useState(false)
+    const [isAuthenticated, setIsAuthenticated] = useState< boolean|undefined>(undefined)
     const [counter, setCounter] = useState(3)
     
     const router = useRouter()
@@ -20,13 +20,15 @@ export default function Perfil(){
     }
 
     useEffect(()=>{
+
         axiosClient.get('auth/profile/')
         .then( res =>{
+            setIsAuthenticated(true)
             setName(res.data.name)
             setEmail(res.data.email)
             setImagePath(res.data.avatar.low)
-            setIsAuthenticated(true)
         }).catch(e => {
+            setIsAuthenticated(false)
             if (counter > 0) {
                 const timerId = setTimeout(() => {
                   setCounter(counter - 1);
@@ -37,8 +39,16 @@ export default function Perfil(){
               }
             router.push('/')
         })
-        
     }, [counter])
+
+
+    if (isAuthenticated === undefined) {
+        return (
+            <div className="flex h-screen flex-col items-center justify-center bg-[#F1F5F9] text-2xl">
+                Carregando...
+            </div>
+        )
+    }
 
     return(
         isAuthenticated?
