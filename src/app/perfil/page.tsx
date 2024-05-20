@@ -8,6 +8,9 @@ export default function Perfil(){
     const [name, setName] = useState('')
     const [email, setEmail] = useState('')
     const [imagePath, setImagePath] = useState('')
+    const [isAuthenticated, setIsAuthenticated] = useState(false)
+    const [counter, setCounter] = useState(3)
+    
     const router = useRouter()
 
 
@@ -22,11 +25,23 @@ export default function Perfil(){
             setName(res.data.name)
             setEmail(res.data.email)
             setImagePath(res.data.avatar.low)
-        }).catch(e => console.log(e))
+            setIsAuthenticated(true)
+        }).catch(e => {
+            if (counter > 0) {
+                const timerId = setTimeout(() => {
+                  setCounter(counter - 1);
+                }, 900);
+          
+                // Limpar o timeout se o componente for desmontado ou o count mudar
+                return () => clearTimeout(timerId);
+              }
+            router.push('/')
+        })
         
-    })
+    }, [counter])
 
     return(
+        isAuthenticated?
         <main className="flex h-screen flex-col items-center  bg-[#F1F5F9]" >
             <div className="flex h-20 w-full bg-[#FFF]  items-center justify-end">
                 <button className="w-72 h-11 text-center text-[#FFF] rounded-md  bg-azul mr-10" onClick={() =>logout()}>
@@ -48,6 +63,7 @@ export default function Perfil(){
                     <input className='rounded-lg bg-[#F1F1F1] p-4' type="text" disabled value={email}/>
                 </div>
             </div>
-        </main>
+        </main>:
+        <div className="flex h-screen flex-col items-center justify-center bg-[#F1F5F9] text-[#e60202] text-2xl">Você não está logado. Redirecionando para o Login...{counter}</div>
     )
 }
